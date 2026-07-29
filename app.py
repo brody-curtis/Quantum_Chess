@@ -207,7 +207,33 @@ def legalP(pos, coords, p):
     return False
 
 def legalK(pos, coords, p):
-    if abs(pos[0] - coords[0]) <= 1 and abs(pos[1] - coords[1]) <= 1: return wayK(pos, coords)
+    # Standard King move
+    if abs(pos[0] - coords[0]) <= 1 and abs(pos[1] - coords[1]) <= 1: 
+        return wayK(pos, coords)
+    
+    # Castling: King moves exactly 2 squares horizontally
+    if p.get("Beg") == 1 and pos[0] == coords[0] and abs(pos[1] - coords[1]) == 2:
+        team = p["Team"]
+        row_idx = pos[0] - 1
+        
+        if coords[1] == pos[1] + 2: # East (Kingside)
+            rook = next((r for r in pieces if r["Type"] == "R" and r["Team"] == team and r["Pos"] == [pos[0], 8] and r.get("Beg") == 1), None)
+            if rook:
+                # Check if path is clear between King and Rook
+                path_clear = all(board[row_idx][c] == '0' for c in range(pos[1], rook["Pos"][1] - 1))
+                if path_clear:
+                    rook["Pos"] = [pos[0], pos[1] + 1] # Move rook to the other side of the King
+                    return True
+                    
+        elif coords[1] == pos[1] - 2: # West (Queenside)
+            rook = next((r for r in pieces if r["Type"] == "R" and r["Team"] == team and r["Pos"] == [pos[0], 1] and r.get("Beg") == 1), None)
+            if rook:
+                # Check if path is clear between Rook and King
+                path_clear = all(board[row_idx][c] == '0' for c in range(rook["Pos"][1], pos[1] - 1))
+                if path_clear:
+                    rook["Pos"] = [pos[0], pos[1] - 1] # Move rook to the other side of the King
+                    return True
+                
     return False
 
 def cast(p):

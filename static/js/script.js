@@ -46,8 +46,16 @@ async function fetchState() {
     const res = await fetch(`/state?dev=${devMode}`);
     const data = await res.json();
     
+    // Store the previous turn to check if it toggled
+    const previousTurn = turn;
+    
     currentBoard = data.board;
     turn = data.turn;
+    
+    // If the turn changed, force the UI back to standard move mode
+    if (previousTurn !== turn) {
+        resetActionState('move');
+    }
     
     turnIndicator.innerText = `Turn: ${turn === 'W' ? 'White' : 'Black'}`;
     if (data.winner) {
@@ -126,12 +134,14 @@ async function handleSquareClick(r, c, pieceName) {
         }
     }
     else if (actionState === 'split_move') {
-        // Step 1: Select real piece
+        // Step 1: Select the piece pair
         if (!selectionState.realPiece) {
-            if (pieceName !== '--0--' && !pieceName.endsWith('_S')) {
-                selectionState.realPiece = pieceName;
-                // Auto-deduce the fake piece since they are a pair!
-                selectionState.fakePiece = pieceName + '_S'; 
+            if (pieceName !== '--0--') {
+                // Grab the base piece name regardless of whether the real or fake piece is clicked on top
+                const baseName = pieceName.endsWith('_S') ? pieceName.replace('_S', '') : pieceName;
+                
+                selectionState.realPiece = baseName;
+                selectionState.fakePiece = baseName + '_S'; 
                 selectionState.selectedSquare = { r, c }; 
                 instructionPanel.innerText = "Select destination for REAL piece.";
             }
@@ -143,7 +153,7 @@ async function handleSquareClick(r, c, pieceName) {
             selectionState.selectedSquare = null;
             instructionPanel.innerText = "Select destination for FAKE piece.";
         }
-        // Step 3: Select fake dest & Send (Skipping selecting the fake piece on the board)
+        // Step 3: Select fake dest & Send
         else {
             const fakeDest = getPythonCoords(r, c);
             await fetch('/split_move', {
