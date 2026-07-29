@@ -107,6 +107,7 @@ def win(t):
     winner = t
 
 def showW():
+    # White on bottom (row 1 at bottom), King to the right of Queen
     temp = np.full((8,8), '--0--', dtype=object)
     for i in pieces:
         y, x = i["Pos"][0], i["Pos"][1]
@@ -117,30 +118,23 @@ def showW():
     return temp.tolist()
 
 def showB():
+    # Black on bottom (row 8 at bottom), King to the left of Queen
     temp = np.full((8,8), '--0--', dtype=object)
     for i in pieces:
+        y, x = i["Pos"][0], i["Pos"][1]
         if i["Split"] == True and i["Real"] == True and i["Team"] == "W":
-            temp[i["Pos"][0]-1][i["Pos"][1]-1] = i["Name"] + "_S"
+            temp[y - 1][x - 1] = i["Name"] + "_S"
         else:
-            temp[i["Pos"][0]-1][i["Pos"][1]-1] = i["Name"]
+            temp[y - 1][x - 1] = i["Name"]
     return temp.tolist()
 
 def showTrue():
+    # Same orientation as Black view
     temp = np.full((8,8), '--0--', dtype=object)
-    for i in pieces:
-        if i["Real"] == False :
-            continue
-        else:
-            temp[i["Pos"][0]-1][i["Pos"][1]-1] = i["Name"]
-    # We will orient True board from White's perspective for frontend consistency
-    # (or you can flip it as needed). Here it maps standard [0][0] to [7][7]
-    # Let's adjust to be like showW so it visually aligns with the board standard
-    mapped_temp = np.full((8,8), '--0--', dtype=object)
-    for r in range(8):
-        for c in range(8):
-            # temp[0][0] is [1,1] which is bottom left in showW -> mapped[7][0]
-            mapped_temp[7-r][c] = temp[r][c]
-    return mapped_temp.tolist()
+    for i in sorted(pieces, key=lambda p: p.get("Real", False)):
+        y, x = i["Pos"][0], i["Pos"][1]
+        temp[y - 1][x - 1] = i["Name"]
+    return temp.tolist()
 
 def update():
     global board

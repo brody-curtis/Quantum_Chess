@@ -18,11 +18,11 @@ let selectionState = {};
 // Helper to construct backend-friendly coordinates from grid click
 // Python expects [row, col] (1-indexed based on the original structure)
 function getPythonCoords(r, c) {
-    if (devModeSelect.value === 'true' || turn === 'W') {
-        // showW and showTrue put Rank 8 at top (row 0), Rank 1 at bottom (row 7)
-        return [8 - r, c + 1]; 
+    if (devModeSelect.value === 'false' && turn === 'W') {
+        // White View orientation
+        return [8 - r, 8 - c]; 
     } else {
-        // showB puts Rank 1 at top (row 0), Rank 8 at bottom (row 7)
+        // Black View & True View orientation
         return [r + 1, c + 1];
     }
 }
@@ -130,26 +130,20 @@ async function handleSquareClick(r, c, pieceName) {
         if (!selectionState.realPiece) {
             if (pieceName !== '--0--' && !pieceName.endsWith('_S')) {
                 selectionState.realPiece = pieceName;
-                selectionState.selectedSquare = { r, c }; // visual only
+                // Auto-deduce the fake piece since they are a pair!
+                selectionState.fakePiece = pieceName + '_S'; 
+                selectionState.selectedSquare = { r, c }; 
                 instructionPanel.innerText = "Select destination for REAL piece.";
             }
         } 
         // Step 2: Select real dest
         else if (!selectionState.realDest) {
             selectionState.realDest = getPythonCoords(r, c);
-            selectionState.splitRealDest = {r, c}; // visual only
+            selectionState.splitRealDest = {r, c}; // visual highlight only
             selectionState.selectedSquare = null;
-            instructionPanel.innerText = "Select the FAKE (Split) piece.";
+            instructionPanel.innerText = "Select destination for FAKE piece.";
         }
-        // Step 3: Select fake piece
-        else if (!selectionState.fakePiece) {
-            if (pieceName.endsWith('_S')) {
-                selectionState.fakePiece = pieceName;
-                selectionState.selectedSquare = { r, c }; // visual only
-                instructionPanel.innerText = "Select destination for FAKE piece.";
-            }
-        }
-        // Step 4: Select fake dest & Send
+        // Step 3: Select fake dest & Send (Skipping selecting the fake piece on the board)
         else {
             const fakeDest = getPythonCoords(r, c);
             await fetch('/split_move', {
@@ -162,10 +156,11 @@ async function handleSquareClick(r, c, pieceName) {
                     copy_coords: fakeDest
                 })
             });
-            resetActionState('move'); // return to normal
+            resetActionState('move'); // return to normal mode
             fetchState();
         }
     }
+    //end here
     renderBoard();
 }
 
