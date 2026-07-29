@@ -5,6 +5,8 @@ Bugs to fix:
 
 Pieces wont move while on player view, they only move when on developer view - fix: it is because from the player view the coordinates are all turned around, so it thinks youre clicking a coordinate you are not.  Add some sort of anchor in the coordinates
 
+On developer view (show true) it doesn't show the false pieces.  This is not what i want.  What i instead want is it to show the image of the full piece on top of the true piece and the split piece on top of the split piece (the same as what that player would see if theyre his pieces).  The opponent of the split piece should see two split images, not knowing which one is real.
+
 Castling doesn't work - fix: add a button to castle or add it to legalK
 
 When moving split pieces, it makes you select the real piece then its destination, then choose the fake piece and its destination.  When they are on top of each other, you choose the destination for the real piece but it doesn't move out of the way.  This makes it impossible to select and move the fake piece under it, so you get soft locked.
