@@ -3,7 +3,7 @@ Like normal chess, but you have the ability to quantumly superimpose your pieces
 
 Bugs to fix:
 
-White pieces wont move while on dev view and black pieces wont move on player view - fix: it is because from the player view the coordinates are all turned around, so it thinks youre clicking a coordinate you are not.  Add some sort of anchor in the coordinates
+White pieces wont move while on dev view and black pieces wont move on player view - fix: it is because from the player view the coordinates are all turned around, so it thinks youre clicking a coordinate you are not.  Add some sort of anchor in the coordinates.  It is also possible that there is some incorrect 8 - position or position - 1 somewhere that throws off the movement from certain views.
 
 On developer view (show true) it doesn't show the false pieces.  This is not what i want.  What i instead want is it to show the image of the full piece on top of the true piece and the split piece on top of the split piece (the same as what that player would see if theyre his pieces).  The opponent of the split piece should see two split images, not knowing which one is real.
 
